@@ -229,6 +229,8 @@ static inline int32 memory_speed (uint32 address)
 	return (TWO_CYCLES);
 }
 
+extern "C" { // allow to access these functions in Javascript
+
 inline uint8 S9xGetByte (uint32 Address)
 {
 	int		block = (Address & 0xffffff) >> MEMMAP_SHIFT;
@@ -330,6 +332,8 @@ inline uint8 S9xGetByte (uint32 Address)
 			addCyclesInMemoryAccess;
 			return (byte);
 	}
+}
+	
 }
 
 inline uint16 S9xGetWord (uint32 Address, enum s9xwrap_t w = WRAP_NONE)
@@ -491,6 +495,8 @@ inline uint16 S9xGetWord (uint32 Address, enum s9xwrap_t w = WRAP_NONE)
 	}
 }
 
+extern "C" { // allow to access these functions in Javascript
+
 inline void S9xSetByte (uint8 Byte, uint32 Address)
 {
 	int		block = (Address & 0xffffff) >> MEMMAP_SHIFT;
@@ -595,6 +601,8 @@ inline void S9xSetByte (uint8 Byte, uint32 Address)
 			addCyclesInMemoryAccess;
 			return;
 	}
+}
+	
 }
 
 inline void S9xSetWord (uint16 Word, uint32 Address, enum s9xwrap_t w = WRAP_NONE, enum s9xwriteorder_t o = WRITE_01)
