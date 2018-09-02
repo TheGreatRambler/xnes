@@ -317,3 +317,11 @@ void S9xSetPalette (void)
 {
 	return;
 }
+
+
+// added by me to allow you to get screenshots
+#ifdef EMSCRIPTEN
+uint8 * JSGetDisplay (void) {
+	return GUI.snes_buffer;
+}
+#endif
