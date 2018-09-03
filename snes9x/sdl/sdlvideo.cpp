@@ -321,7 +321,56 @@ void S9xSetPalette (void)
 
 // added by me to allow you to get screenshots
 #ifdef EMSCRIPTEN
-uint8 * JSGetDisplay (void) {
-	return GUI.snes_buffer;
+Uint32 getPixel(SDL_Surface *surface, int x, int y)
+{
+    int bpp = surface->format->BytesPerPixel;
+    /* Here p is the address to the pixel we want to retrieve */
+    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+
+    switch(bpp) {
+    case 1:
+        return *p;
+        break;
+
+    case 2:
+        return *(Uint16 *)p;
+        break;
+
+    case 3:
+        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            return p[0] << 16 | p[1] << 8 | p[2];
+        else
+            return p[0] | p[1] << 8 | p[2] << 16;
+        break;
+
+    case 4:
+        return *(Uint32 *)p;
+        break;
+
+    default:
+        return 0;       /* shouldn't happen, but avoids warnings */
+    }
+}
+
+extern "C" {
+uint8 * JSGetDisplay (void) { // get sdl display
+	SDL_LockSurface(GUI.sdl_screen);
+	Uint8 imageData [GUI.sdl_screen->h * GUI.sdl_screen->w * 4]; // imageData to send to javascript
+	int currentIndex = 0;
+	for (int h = 0; h < GUI.sdl_screen->h; h++) {
+		for (int w = 0; w < GUI.sdl_screen->w; w++) {
+			Uint32 thisPixel = getPixel(GUI.sdl_screen, w, h);
+			Uint8 r, g, b, a;
+			SDL_GetRGBA(thisPixel, GUI.sdl_screen->SDL_PixelFormat, *r, *g, *b, *a);
+			imageData[currentIndex] = r;
+			imageData[currentIndex + 1] = g;
+			imageData[currentIndex + 2] = b;
+			imageData[currentIndex + 3] = a;
+			currentIndex += 4;
+		}
+	}
+	SDL_UnlockSurface(GUI.sdl_screen);
+	// not sure how to return yet
+}
 }
 #endif
